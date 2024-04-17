@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styles.css">
+<title>Messages</title>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("dateFilter").addEventListener("input", function() {
+            const selectedDate = new Date(this.value).setHours(0, 0, 0, 0);
+            const messages = document.querySelectorAll(".message");
+            messages.forEach(function(msg) {
+                const messageDate = new Date(msg.dataset.date);
+                messageDate.setHours(0, 0, 0, 0); // Normalize the date to start of day to match selected date
+                msg.style.display = messageDate.getTime() === selectedDate.getTime() ? "" : "none";
+            });
+        });
+    });
+</script>
+</head>
+<body>
+<div class="container">
+    <h1>Direct Messages</h1>
+    <input type="date" id="dateFilter" name="dateFilter" aria-label="Filter messages by date">
+    {% if dms %}
+        <form method="POST">
+            {% for dm in dms %}
+            <div class="message" data-date="{{ dm['created_timestamp'] }}">
+                <div class="message-details">
+                    <strong>From: </strong>{{ dm['message_create']['sender_id'] }}<br>
+                    <strong>Message: </strong>{{ dm['message_create']['message_data']['text'] }}<br>
+                    <strong>Date: </strong>{{ dm['formatted_date'] }}
+                </div>
+                <button type="submit" name="dm_id" value="{{ dm['id'] }}" class="btn">Open</button>
+            </div>
+            {% endfor %}
+        </form>
+    {% else %}
+        <p>No messages to display.</p>
+    {% endif %}
+</div>
+</body>
+</html>
